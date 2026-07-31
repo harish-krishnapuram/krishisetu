@@ -1,0 +1,106 @@
+@import "./styles/variables.css";
+
+/* App Shell Layout */
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-app);
+}
+
+main {
+  flex: 1;
+}
+
+/* Wide Responsive Container Overrides - Prevents Narrow Center Squeezing */
+@media (min-width: 1200px) {
+  .container, .container-lg, .container-xl, .container-xxl {
+    max-width: 1440px !important;
+    width: 95% !important;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #A5D6A7;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #1B5E20;
+}
+
+/* Form Controls Uniform Styling - Larger & Prominent */
+.form-control, .form-select {
+  font-size: 15px;
+  padding: 12px 16px;
+  border-radius: 12px;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 0.25rem rgba(46, 125, 50, 0.15);
+}
+
+/* Primary Button Styling Override - Larger & Generous Padding */
+.btn-krishi-primary {
+  background-color: var(--primary);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 12px 28px;
+  transition: var(--transition-smooth);
+}
+
+.btn-krishi-primary:hover {
+  background-color: var(--primary-hover);
+  color: #ffffff;
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-2px);
+}
+
+.btn-krishi-accent {
+  background-color: var(--accent);
+  color: #1F2937;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 12px 28px;
+  transition: var(--transition-smooth);
+}
+
+.btn-krishi-accent:hover {
+  background-color: var(--accent-hover);
+  color: #1F2937;
+  box-shadow: 0 6px 20px rgba(249, 168, 37, 0.35);
+  transform: translateY(-2px);
+}
+
+.btn-krishi-outline {
+  background-color: transparent;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  padding: 10px 24px;
+  transition: var(--transition-smooth);
+}
+
+.btn-krishi-outline:hover {
+  background-color: var(--primary);
+  color: #ffffff;
+}

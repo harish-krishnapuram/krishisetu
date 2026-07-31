@@ -1,0 +1,21 @@
+.ks-category-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(27, 94, 32, 0.08) !important;
+}
+
+.ks-category-card:hover {
+  border-color: var(--primary) !important;
+  box-shadow: var(--shadow-glow) !important;
+}
+
+.category-img {
+  transition: transform 0.5s ease;
+}
+
+.ks-category-card:hover .category-img {
+  transform: scale(1.08);
+}
+
+.img-overlay {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(27, 94, 32, 0.25) 100%);
+}

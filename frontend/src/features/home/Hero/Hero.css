@@ -1,0 +1,181 @@
+/* ==========================================
+   KRISHISETU FULL-WIDTH ECOMMERCE HERO SECTION
+========================================== */
+
+.hero {
+  position: relative;
+  min-height: calc(100vh - 110px);
+  display: flex;
+  align-items: center;
+  padding: 40px 0;
+  overflow: hidden;
+  background: linear-gradient(180deg, #F8FAF5 0%, #E8F5E9 100%);
+}
+
+.hero-container {
+  max-width: 1400px !important;
+  width: 92% !important;
+  margin: 0 auto;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  align-items: center;
+  gap: 48px;
+}
+
+/* Clean Professional Announcement Badge */
+.hero-announcement-badge {
+  background: #E8F5E9;
+  color: #1B5E20;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 50px;
+  padding: 8px 20px;
+  border: 1px solid #A5D6A7;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.3px;
+}
+
+/* Typography Overrides */
+.hero-heading {
+  font-family: var(--font-heading);
+  font-size: 64px;
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.5px;
+}
+
+.hero-description {
+  font-size: 20px;
+  line-height: 1.6;
+  max-width: 580px;
+  color: #4B5563;
+}
+
+/* Larger CTA Buttons */
+.btn-hero {
+  padding: 16px 36px !important;
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  border-radius: 50px !important;
+}
+
+/* Right Side Image Banner Dimensions */
+.hero-image-col {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.hero-image-card {
+  width: 100%;
+  max-width: 600px;
+  height: 500px;
+  border-radius: 30px !important;
+  box-shadow: 0 20px 45px rgba(27, 94, 32, 0.16) !important;
+}
+
+.hero-img {
+  height: 500px;
+  object-fit: cover;
+  border-radius: 30px;
+  display: block;
+}
+
+/* Floating overlay badges inside image container */
+.hero-badge {
+  position: absolute;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(27, 94, 32, 0.15) !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  z-index: 5;
+}
+
+.hero-badge:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(27, 94, 32, 0.18) !important;
+}
+
+.badge-top-left {
+  top: 24px;
+  left: 24px;
+}
+
+.badge-bottom-right {
+  bottom: 24px;
+  right: 24px;
+}
+
+/* Responsive Scaling */
+@media (max-width: 1200px) {
+  .hero-heading {
+    font-size: 52px;
+  }
+  .hero-description {
+    font-size: 18px;
+  }
+  .hero-image-card, .hero-img {
+    height: 440px;
+  }
+}
+
+@media (max-width: 992px) {
+  .hero {
+    min-height: auto;
+    padding: 30px 0;
+  }
+
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+
+  .hero-image-col {
+    justify-content: center;
+  }
+
+  .hero-heading {
+    font-size: 42px;
+    text-align: left;
+  }
+
+  .hero-description {
+    font-size: 18px;
+    text-align: left;
+  }
+
+  .hero-image-card, .hero-img {
+    max-width: 100%;
+    height: 380px;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero-heading {
+    font-size: 32px;
+  }
+
+  .hero-description {
+    font-size: 16px;
+  }
+
+  .hero-image-card, .hero-img {
+    height: 290px;
+    border-radius: 20px !important;
+  }
+
+  .btn-hero {
+    width: 100%;
+    justify-content: center;
+    padding: 14px 24px !important;
+  }
+
+  .badge-top-left, .badge-bottom-right {
+    padding: 8px 12px !important;
+  }
+}
