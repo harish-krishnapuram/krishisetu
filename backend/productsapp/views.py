@@ -1,9 +1,16 @@
-from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
 
+from rest_framework import filters, viewsets
+from rest_framework.permissions import AllowAny
+
 from .models import Category, Product
-from .serializers import CategorySerializer, ProductSerializer
+from .serializers import (
+    CategorySerializer,
+    ProductSerializer,
+)
+
 from .permissions import (
+    IsAdminOnly,
     IsFarmerOrReadOnly,
     IsOwnerOrAdmin,
 )
@@ -11,35 +18,26 @@ from .permissions import (
 
 class CategoryViewSet(viewsets.ModelViewSet):
     """
-    Category CRUD Operations
-
-    GET     -> Anyone
-    POST    -> Farmer/Admin
-    PUT     -> Farmer/Admin
-    PATCH   -> Farmer/Admin
-    DELETE  -> Farmer/Admin
+    Category CRUD
     """
 
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [IsFarmerOrReadOnly]
+    permission_classes = [IsAdminOnly]
 
 
 class ProductViewSet(viewsets.ModelViewSet):
     """
-    Product CRUD Operations
+    Product CRUD APIs
     """
 
     serializer_class = ProductSerializer
 
     queryset = Product.objects.select_related(
         "farmer",
-        "category"
+        "category",
     ).all()
 
-    # -----------------------------
-    # Search, Filter & Ordering
-    # -----------------------------
     filter_backends = [
         DjangoFilterBackend,
         filters.SearchFilter,
@@ -66,46 +64,34 @@ class ProductViewSet(viewsets.ModelViewSet):
         "-created_at",
     ]
 
-    # -----------------------------
+    # ----------------------------
     # Permissions
-    # -----------------------------
+    # ----------------------------
+
     def get_permissions(self):
 
         # Public APIs
         if self.action in ["list", "retrieve"]:
-            return []
+            return [AllowAny()]
 
-        # Only Farmers/Admin can create
+        # Create Product
         if self.action == "create":
             return [IsFarmerOrReadOnly()]
 
-        # Only Owner Farmer/Admin can Update/Delete
+        # Update/Delete Product
         return [IsOwnerOrAdmin()]
 
-    # -----------------------------
-    # Save Logged-in Farmer
-    # -----------------------------
-    def perform_create(self, serializer):
-        serializer.save(
-            farmer=self.request.user
-        )
+    # ----------------------------
+    # Queryset
+    # ----------------------------
 
-    # -----------------------------
-    # Update Product
-    # -----------------------------
-    def perform_update(self, serializer):
-        serializer.save()
-
-    # -----------------------------
-    # QuerySet Restrictions
-    # -----------------------------
     def get_queryset(self):
 
         queryset = super().get_queryset()
 
         user = self.request.user
 
-        # Anonymous users
+        # Anonymous users can only see available products
         if not user.is_authenticated:
             return queryset.filter(
                 is_available=True
@@ -115,7 +101,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         if user.is_superuser:
             return queryset
 
-        # Farmer can edit only their own products
+        # Farmer updating/deleting
         if (
             user.role == "farmer"
             and self.action in [
@@ -129,3 +115,19 @@ class ProductViewSet(viewsets.ModelViewSet):
             )
 
         return queryset
+
+    # ----------------------------
+    # Create Product
+    # ----------------------------
+
+    def perform_create(self, serializer):
+        serializer.save(
+            farmer=self.request.user
+        )
+
+    # ----------------------------
+    # Update Product
+    # ----------------------------
+
+    def perform_update(self, serializer):
+        serializer.save()
