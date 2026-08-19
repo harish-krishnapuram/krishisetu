@@ -1,0 +1,9 @@
+.ks-review-card {
+  border: 1px solid rgba(27, 94, 32, 0.08) !important;
+  transition: var(--transition-smooth);
+}
+
+.ks-review-card:hover {
+  box-shadow: var(--shadow-md) !important;
+  border-color: var(--primary) !important;
+}

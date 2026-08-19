@@ -1,10 +1,7 @@
-import Home from './components/Home'
+import AppRoutes from "./routes/AppRoutes";
 
-const App = ()=>{
-  return (
-    
-    <Home />
-  )
+function App() {
+  return <AppRoutes />;
 }
 
-export default App
+export default App;

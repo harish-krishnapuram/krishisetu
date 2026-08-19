@@ -1,0 +1,36 @@
+.search-box {
+
+  display: flex;
+
+  width: 100%;
+  max-width: 520px;
+
+  background: white;
+
+  border-radius: 50px;
+
+  overflow: hidden;
+
+  border: 1px solid var(--border);
+
+}
+
+.search-box input{
+
+  flex:1;
+
+  border:none;
+
+  padding:14px 18px;
+
+}
+
+.search-box button{
+
+  width:60px;
+
+  background:var(--primary);
+
+  color:white;
+
+}

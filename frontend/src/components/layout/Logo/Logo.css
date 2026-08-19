@@ -1,0 +1,46 @@
+.logo{
+    display:flex;
+    align-items:center;
+    text-decoration:none;
+    gap:12px;
+}
+
+.logo-img{
+    width:58px;
+    height:58px;
+    object-fit:cover;
+    border-radius:50%;
+    border:2px solid #2E7D32;
+}
+
+.logo-text h4{
+    margin:0;
+    font-size:22px;
+    font-weight:700;
+    color:#2E7D32;
+    letter-spacing:.5px;
+}
+
+.logo-text small{
+    display:block;
+    margin-top:2px;
+    color:#777;
+    font-size:12px;
+}
+
+@media(max-width:768px){
+
+.logo-img{
+    width:48px;
+    height:48px;
+}
+
+.logo-text h4{
+    font-size:18px;
+}
+
+.logo-text small{
+    display:none;
+}
+
+}
