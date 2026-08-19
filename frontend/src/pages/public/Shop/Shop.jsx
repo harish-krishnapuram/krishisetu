@@ -1,17 +1,35 @@
-import { useState, useMemo } from "react";
-import { MOCK_PRODUCTS, MOCK_CATEGORIES } from "../../../data/mockData";
+import { useState, useEffect, useMemo } from "react";
+import { getProductsApi, getCategoriesApi } from "../../../services/apiService";
 import ProductCard from "../../../components/cards/ProductCard/ProductCard";
 
 function Shop() {
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [organicOnly, setOrganicOnly] = useState(false);
   const [maxPrice, setMaxPrice] = useState(1500);
   const [sortBy, setSortBy] = useState("default");
 
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      const [prodsData, catsData] = await Promise.all([
+        getProductsApi(),
+        getCategoriesApi()
+      ]);
+      setProducts(prodsData || []);
+      setCategories(catsData || []);
+      setLoading(false);
+    }
+    fetchData();
+  }, []);
+
   const filteredProducts = useMemo(() => {
-    return MOCK_PRODUCTS.filter((product) => {
-      if (selectedCategory !== "all" && product.categoryId !== selectedCategory) {
+    return products.filter((product) => {
+      if (selectedCategory !== "all" && product.categoryId !== selectedCategory && product.category?.toLowerCase() !== selectedCategory) {
         return false;
       }
       if (organicOnly && !product.isOrganic) {
@@ -24,7 +42,7 @@ function Shop() {
         searchQuery &&
         !product.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
         !product.category.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        !product.farmer.name.toLowerCase().includes(searchQuery.toLowerCase())
+        !product.farmer?.name?.toLowerCase().includes(searchQuery.toLowerCase())
       ) {
         return false;
       }
@@ -35,7 +53,7 @@ function Shop() {
       if (sortBy === "rating") return b.rating - a.rating;
       return 0;
     });
-  }, [selectedCategory, searchQuery, organicOnly, maxPrice, sortBy]);
+  }, [products, selectedCategory, searchQuery, organicOnly, maxPrice, sortBy]);
 
   const resetFilters = () => {
     setSelectedCategory("all");
@@ -58,22 +76,20 @@ function Shop() {
           {/* Sidebar Filter Panel */}
           <div className="col-lg-3">
             <div className="bg-white p-4 rounded-4 shadow-sm border sticky-top" style={{ top: 90 }}>
-              <div className="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
-                <h5 className="fw-bold mb-0 text-dark">Filter Crops</h5>
-                <button className="btn btn-link btn-sm p-0 text-success fw-semibold text-decoration-none" onClick={resetFilters}>
-                  Reset All
-                </button>
+              <div className="d-flex align-items-center justify-content-between mb-3">
+                <h5 className="fw-bold text-dark mb-0"><i className="bi bi-funnel me-2"></i>Filter Crops</h5>
+                <button className="btn btn-link btn-sm text-success p-0 text-decoration-none" onClick={resetFilters}>Reset</button>
               </div>
 
               {/* Search */}
               <div className="mb-4">
-                <label className="form-label small fw-semibold text-secondary">Search Crops or Farmers</label>
+                <label className="form-label small fw-semibold text-secondary">Search Crops</label>
                 <div className="input-group">
-                  <span className="input-group-text bg-light border-end-0"><i className="bi bi-search text-muted"></i></span>
+                  <span className="input-group-text bg-light border-end-0"><i className="bi bi-search"></i></span>
                   <input
                     type="text"
                     className="form-control bg-light border-start-0"
-                    placeholder="e.g. Mango, Rameshwar..."
+                    placeholder="Search wheat, mango..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -82,66 +98,52 @@ function Shop() {
 
               {/* Categories */}
               <div className="mb-4">
-                <label className="form-label small fw-semibold text-secondary d-block mb-2">Crop Categories</label>
-                <div className="d-flex flex-column gap-2">
-                  <div className="form-check">
-                    <input
-                      type="radio"
-                      className="form-check-input"
-                      name="category"
-                      id="cat-all"
-                      checked={selectedCategory === "all"}
-                      onChange={() => setSelectedCategory("all")}
-                    />
-                    <label className="form-check-label small text-dark fw-medium" htmlFor="cat-all">All Categories</label>
-                  </div>
-                  {MOCK_CATEGORIES.map((cat) => (
-                    <div key={cat.id} className="form-check">
-                      <input
-                        type="radio"
-                        className="form-check-input"
-                        name="category"
-                        id={cat.id}
-                        checked={selectedCategory === cat.id}
-                        onChange={() => setSelectedCategory(cat.id)}
-                      />
-                      <label className="form-check-label small text-dark" htmlFor={cat.id}>
-                        {cat.name}
-                      </label>
-                    </div>
+                <label className="form-label small fw-semibold text-secondary">Harvest Category</label>
+                <div className="d-flex flex-column gap-1">
+                  <button
+                    className={`btn btn-sm text-start rounded-3 ${selectedCategory === "all" ? "btn-success text-white" : "btn-light text-dark"}`}
+                    onClick={() => setSelectedCategory("all")}
+                  >
+                    🌱 All Categories
+                  </button>
+                  {categories.map((cat) => (
+                    <button
+                      key={cat.id}
+                      className={`btn btn-sm text-start rounded-3 ${selectedCategory === cat.slug || selectedCategory === cat.id ? "btn-success text-white" : "btn-light text-dark"}`}
+                      onClick={() => setSelectedCategory(cat.slug || cat.id)}
+                    >
+                      <i className={`bi ${cat.icon} me-2`}></i>{cat.name}
+                    </button>
                   ))}
                 </div>
               </div>
 
-              {/* Organic Filter Checkbox */}
-              <div className="mb-4">
-                <label className="form-label small fw-semibold text-secondary d-block mb-2">Farming Method</label>
-                <div className="form-check form-switch">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    id="organicSwitch"
-                    checked={organicOnly}
-                    onChange={(e) => setOrganicOnly(e.target.checked)}
-                  />
-                  <label className="form-check-label small fw-semibold text-success" htmlFor="organicSwitch">
-                    🌱 100% Organic Only
-                  </label>
-                </div>
+              {/* Organic Only */}
+              <div className="form-check form-switch mb-4">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="organicCheck"
+                  checked={organicOnly}
+                  onChange={(e) => setOrganicOnly(e.target.checked)}
+                />
+                <label className="form-check-label fw-semibold text-dark small" htmlFor="organicCheck">
+                  🌿 100% Organic Only
+                </label>
               </div>
 
-              {/* Max Price Slider */}
+              {/* Price Slider */}
               <div className="mb-3">
-                <div className="d-flex justify-content-between mb-1">
-                  <label className="form-label small fw-semibold text-secondary">Max Price</label>
-                  <span className="fw-bold text-success small">₹{maxPrice}</span>
+                <div className="d-flex justify-content-between small fw-semibold text-secondary mb-1">
+                  <span>Max Price:</span>
+                  <span className="text-success fw-bold">₹{maxPrice}</span>
                 </div>
                 <input
                   type="range"
                   className="form-range"
                   min="30"
                   max="1500"
-                  step="20"
+                  step="10"
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(Number(e.target.value))}
                 />
@@ -149,23 +151,17 @@ function Shop() {
             </div>
           </div>
 
-          {/* Product Grid Area */}
+          {/* Product Grid */}
           <div className="col-lg-9">
-            {/* Top Toolbar */}
-            <div className="bg-white p-3 rounded-4 shadow-sm border mb-4 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
-              <span className="text-muted small">
-                Showing <strong className="text-dark">{filteredProducts.length}</strong> of {MOCK_PRODUCTS.length} Crops Available
+            {/* Sort & Count Header */}
+            <div className="bg-white p-3 rounded-4 border shadow-sm mb-4 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
+              <span className="text-muted small fw-semibold">
+                Showing <strong className="text-dark">{filteredProducts.length}</strong> fresh products direct from farms
               </span>
-
               <div className="d-flex align-items-center gap-2">
-                <span className="small text-secondary fw-semibold">Sort By:</span>
-                <select
-                  className="form-select form-select-sm rounded-pill border"
-                  style={{ width: "180px" }}
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                >
-                  <option value="default">Featured / Default</option>
+                <span className="small text-muted">Sort By:</span>
+                <select className="form-select form-select-sm rounded-3" style={{ width: 170 }} value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                  <option value="default">Featured</option>
                   <option value="price-low">Price: Low to High</option>
                   <option value="price-high">Price: High to Low</option>
                   <option value="rating">Highest Rated</option>
@@ -173,20 +169,22 @@ function Shop() {
               </div>
             </div>
 
-            {/* Products Grid */}
-            {filteredProducts.length === 0 ? (
+            {loading ? (
+              <div className="text-center py-5">
+                <div className="spinner-border text-success" role="status"></div>
+                <p className="mt-2 text-muted small">Loading live harvest items from backend...</p>
+              </div>
+            ) : filteredProducts.length === 0 ? (
               <div className="bg-white p-5 rounded-4 text-center border shadow-sm">
-                <div className="fs-1 text-muted mb-2">🔍</div>
-                <h5 className="fw-bold text-dark">No Crops Match Your Filter</h5>
-                <p className="text-muted small mb-3">Try adjusting your price range or search terms to see available harvests.</p>
-                <button className="btn btn-krishi-outline btn-sm rounded-pill px-4" onClick={resetFilters}>
-                  Clear All Filters
-                </button>
+                <i className="bi bi-search fs-1 text-muted d-block mb-3"></i>
+                <h5 className="fw-bold text-dark">No Products Found</h5>
+                <p className="text-muted small">Try relaxing your search terms or price filter.</p>
+                <button className="btn btn-outline-success btn-sm rounded-pill px-4" onClick={resetFilters}>Reset All Filters</button>
               </div>
             ) : (
-              <div className="row g-4">
+              <div className="row g-3">
                 {filteredProducts.map((product) => (
-                  <div key={product.id} className="col-12 col-md-6 col-xl-4">
+                  <div key={product.id} className="col-sm-6 col-md-4">
                     <ProductCard product={product} />
                   </div>
                 ))}

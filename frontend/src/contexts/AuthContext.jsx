@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { loginApi, registerApi } from "../services/apiService";
 
 const AuthContext = createContext();
 
@@ -37,33 +38,24 @@ export function AuthProvider({ children }) {
     }
   }, [token]);
 
-  const login = (email, password, role = "buyer") => {
-    const mockUser = {
-      id: `user-${Date.now()}`,
-      name: email.split("@")[0].toUpperCase(),
-      email,
-      phone: "+91 98765 00000",
-      role,
-      avatar: role === "farmer"
-        ? "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=300&q=80"
-        : "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80",
-      address: "123 Farm View Colony, India",
-      farmName: role === "farmer" ? "Green Harvest Organic Estate" : null
-    };
-    setUser(mockUser);
-    setToken(`jwt-token-${role}-${Date.now()}`);
-    return mockUser;
+  const login = async (email, password, role = "buyer") => {
+    const res = await loginApi(email, password, role);
+    if (res?.user && res?.token) {
+      setUser(res.user);
+      setToken(res.token);
+      return res.user;
+    }
+    return null;
   };
 
-  const register = (userData) => {
-    const newUser = {
-      id: `user-${Date.now()}`,
-      ...userData,
-      avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80"
-    };
-    setUser(newUser);
-    setToken(`jwt-token-${newUser.role}-${Date.now()}`);
-    return newUser;
+  const register = async (userData) => {
+    const res = await registerApi(userData);
+    if (res?.user && res?.token) {
+      setUser(res.user);
+      setToken(res.token);
+      return res.user;
+    }
+    return null;
   };
 
   const switchRole = (newRole) => {

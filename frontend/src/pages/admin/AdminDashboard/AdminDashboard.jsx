@@ -13,6 +13,11 @@ import { toast } from "react-toastify";
 
 function AdminDashboard() {
   const [farmers, setFarmers] = useState(MOCK_FARMERS);
+  const [products, setProducts] = useState(MOCK_PRODUCTS);
+
+  // Edit Price State for Admin
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [newPrice, setNewPrice] = useState("");
 
   const toggleVerifyFarmer = (id) => {
     setFarmers((prev) =>
@@ -31,6 +36,24 @@ function AdminDashboard() {
     );
   };
 
+  const handleOpenEditPrice = (product) => {
+    setEditingProduct(product);
+    setNewPrice(product.price);
+  };
+
+  const handleSavePrice = (e) => {
+    e.preventDefault();
+    if (!newPrice || Number(newPrice) <= 0) {
+      toast.warning("Please enter a valid selling price.");
+      return;
+    }
+    setProducts((prev) =>
+      prev.map((p) => (p.id === editingProduct.id ? { ...p, price: Number(newPrice) } : p))
+    );
+    toast.success(`🏷️ Price for '${editingProduct.name}' updated to ₹${newPrice} / ${editingProduct.unit}!`);
+    setEditingProduct(null);
+  };
+
   return (
     <div className="admin-dashboard d-flex flex-column gap-4">
       {/* Admin Header Banner */}
@@ -42,7 +65,7 @@ function AdminDashboard() {
             </span>
             <h2 className="fw-bold mb-1 text-white">KrishiSetu Platform Control</h2>
             <p className="mb-0 text-white-50 small">
-              Real-time monitoring of verified farmers, buyers, crop listings, payments, and system compliance.
+              Real-time monitoring of verified farmers, buyers, crop listings, prices, and system compliance.
             </p>
           </div>
           <div className="d-flex gap-2">
@@ -94,36 +117,116 @@ function AdminDashboard() {
               <span className="text-muted small fw-semibold">Catalog Items</span>
               <i className="bi bi-tags-fill fs-4 text-danger"></i>
             </div>
-            <h3 className="fw-bold text-dark mt-2 mb-0">{MOCK_PRODUCTS.length} Listed Crops</h3>
+            <h3 className="fw-bold text-dark mt-2 mb-0">{products.length} Listed Crops</h3>
             <span className="text-muted small">{MOCK_CATEGORIES.length} Active Categories</span>
           </div>
         </div>
       </div>
 
-      {/* Platform Order Volume Chart */}
+      {/* Admin Price Control & Crop Catalog Audit */}
       <div className="bg-white p-4 rounded-4 border shadow-sm">
-        <div className="d-flex align-items-center justify-content-between mb-4">
+        <div className="d-flex align-items-center justify-content-between mb-3">
           <div>
-            <h5 className="fw-bold mb-0 text-dark">Platform Monthly Order Volume</h5>
-            <span className="text-muted small">Total completed orders across all Indian state hubs</span>
+            <h5 className="fw-bold mb-0 text-dark">🏷️ Crop Price Governance & Audit Panel</h5>
+            <span className="text-muted small">Admins & Farmers can edit crop selling prices to enforce fair market rates</span>
           </div>
-          <span className="badge bg-dark text-white rounded-pill px-3 py-2">Analytics 2026</span>
+          <span className="badge bg-primary text-white rounded-pill px-3 py-2">
+            {products.length} Active Products
+          </span>
         </div>
-        <div style={{ width: "100%", height: 280 }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={MOCK_ANALYTICS.salesChartData}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-              <XAxis dataKey="month" stroke="#64748B" />
-              <YAxis stroke="#64748B" />
-              <Tooltip
-                formatter={(value) => [`${value} Orders`, "Completed Orders"]}
-                contentStyle={{ borderRadius: "12px", border: "1px solid #E2E8F0" }}
-              />
-              <Bar dataKey="orders" fill="#1B5E20" radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+
+        <div className="table-responsive">
+          <table className="table align-middle">
+            <thead className="table-light">
+              <tr>
+                <th>Crop Title</th>
+                <th>Category</th>
+                <th>Seller Farmer</th>
+                <th>Current Price</th>
+                <th>Stock Available</th>
+                <th className="text-end">Admin Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((p) => (
+                <tr key={p.id}>
+                  <td>
+                    <div className="d-flex align-items-center gap-3">
+                      <img src={p.image} alt={p.name} className="rounded-3 border" style={{ width: 44, height: 44, objectFit: "cover" }} />
+                      <span className="fw-bold text-dark">{p.name}</span>
+                    </div>
+                  </td>
+                  <td><span className="badge bg-light text-dark border">{p.category}</span></td>
+                  <td>{p.farmer?.name || "Rameshwar Patel"}</td>
+                  <td className="fw-bold text-success">₹{p.price} / {p.unit}</td>
+                  <td>{p.stock} {p.unit}s</td>
+                  <td className="text-end">
+                    <button
+                      className="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold"
+                      onClick={() => handleOpenEditPrice(p)}
+                    >
+                      <i className="bi bi-pencil-square me-1"></i> Edit Cost / Price
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
+
+      {/* Edit Price Modal for Admin */}
+      {editingProduct && (
+        <div className="modal fade show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }} tabIndex="-1">
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content border-0 rounded-4 shadow-lg">
+              <div className="modal-header border-bottom p-4">
+                <h5 className="modal-title fw-bold text-dark">
+                  🏷️ Update Product Selling Price
+                </h5>
+                <button type="button" className="btn-close" onClick={() => setEditingProduct(null)}></button>
+              </div>
+              <form onSubmit={handleSavePrice}>
+                <div className="modal-body p-4">
+                  <div className="d-flex align-items-center gap-3 mb-4 p-3 bg-light rounded-3 border">
+                    <img src={editingProduct.image} alt={editingProduct.name} className="rounded-3 border" style={{ width: 56, height: 56, objectFit: "cover" }} />
+                    <div>
+                      <h6 className="fw-bold mb-0 text-dark">{editingProduct.name}</h6>
+                      <span className="text-muted small">Seller: {editingProduct.farmer?.name}</span>
+                    </div>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label small fw-semibold text-secondary">
+                      New Selling Price (in ₹ per {editingProduct.unit})
+                    </label>
+                    <div className="input-group">
+                      <span className="input-group-text bg-light fw-bold text-success">₹</span>
+                      <input
+                        type="number"
+                        className="form-control form-control-lg fw-bold"
+                        value={newPrice}
+                        onChange={(e) => setNewPrice(e.target.value)}
+                        required
+                        min="1"
+                      />
+                      <span className="input-group-text bg-light text-muted">/ {editingProduct.unit}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="modal-footer border-top p-3">
+                  <button type="button" className="btn btn-light rounded-pill px-4" onClick={() => setEditingProduct(null)}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn btn-success rounded-pill px-4 fw-bold">
+                    Save New Price
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Governance & Verified Farmers Management Table */}
       <div className="bg-white p-4 rounded-4 border shadow-sm">
